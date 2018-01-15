@@ -1,0 +1,9 @@
+.idea/
+node_modules/
+dist/
+npm-debug.log
+*.tar.gz
+rev/
+browserDir/
+mock/
+logs/
