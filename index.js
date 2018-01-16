@@ -81,7 +81,8 @@ function count() {
         }
       });
       totalCount1 = parseInt(totalCount1);
-      const averageCount = parseInt(Math.sqrt((Math.pow(totalCount, 2) + Math.pow(totalCount1, 2)) / 2));
+      let temp = ((totalCount / Math.abs(totalCount)) * Math.pow(totalCount, 2) + (totalCount1 / Math.abs(totalCount1)) * Math.pow(totalCount1, 2)) / 2;
+      const averageCount = parseInt(Math.sqrt(Math.abs(temp)))*(temp / Math.abs(temp));
       console.log('天天基金预估:', totalCount);
       console.log('好买基金预估:', totalCount1);
       console.log('均值:', averageCount);
