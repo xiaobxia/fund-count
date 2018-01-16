@@ -12,6 +12,7 @@ myFund.forEach(function (item) {
   priceCount += item.price;
 });
 console.log('持仓金额', priceCount);
+const startTime = Date.now();
 myFund.forEach(function (item, index) {
   /**
    * 天天基金
@@ -42,6 +43,7 @@ myFund.forEach(function (item, index) {
           });
           totalCount = parseInt(totalCount);
           console.log('天天基金预估:', totalCount);
+          console.log(`用时:${Date.now()-startTime}ms`);
           // 打印到文件
           const now = (new Date()).toLocaleString();
           logData({
