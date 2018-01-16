@@ -48,7 +48,7 @@ myFund.forEach(function (item, index) {
       console.log(err)
     }));
     // 新浪
-    request({
+    requestList.push(request({
       method: 'get',
       url: `http://hq.sinajs.cn/list=fu_${item.code}`,
       encoding: 'utf-8'
@@ -57,12 +57,12 @@ myFund.forEach(function (item, index) {
       item.preRateChange2 = temp[temp.length - 2];
     }).catch(function (err) {
       console.log(err)
-    });
+    }));
   }, index * 300);
 });
 
 function count() {
-  if ((requestList.length === myFund.length * 2) && !isInCount) {
+  if ((requestList.length === myFund.length * 3) && !isInCount) {
     isInCount = true;
     // 所有的请求都被添加
     Promise.all(requestList).then(() => {
