@@ -4,40 +4,55 @@
 const request = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs-extra');
+const myFund = require('./myFund');
 
-const myFund = [
-  {
-    code: '167301',
-    name: '方正富邦保险主题指数分级',
-    price: 6000
-  },
-  {
-    code: '001600',
-    name: '天弘高端装备制造指数',
-    price: 3929
-  }
-];
 let requestList = [];
+let priceCount = 0;
 myFund.forEach(function (item) {
+  priceCount += item.price;
+});
+console.log('持仓金额', priceCount);
+myFund.forEach(function (item, index) {
   /**
    * 天天基金
    */
-  requestList.push(request({
-    method: 'get',
-    url: `http://fund.eastmoney.com/${item.code}.html?spm=search`,
-    encoding: 'utf-8',
-    transform: function (body) {
-      return cheerio.load(body);
-    }
-  }).then(($) => {
-    item.preValue1 = $('#gz_gszzl').text();
-  }).catch(function (err) {
-    console.log(err)
-  }));
-});
-
-Promise.all(requestList).then(() => {
-  logData({myFund});
+  // 延时发送，防止被禁ip
+  setTimeout(function () {
+    requestList.push(request({
+      method: 'get',
+      url: `http://fund.eastmoney.com/${item.code}.html?spm=search`,
+      encoding: 'utf-8',
+      transform: function (body) {
+        return cheerio.load(body);
+      }
+    }).then(($) => {
+      item.preRateChange = $('#gz_gszzl').text();
+      if (index + 1 === myFund.length) {
+        // 所有的请求都被添加
+        Promise.all(requestList).then(() => {
+          // 计算每笔基金的收益
+          myFund.forEach(function (item) {
+            const change = parseFloat(item.preRateChange.slice(0, item.preRateChange.indexOf('%')));
+            item.preValueChange = change * item.price / 100;
+          });
+          // 计算总收益
+          let totalCount = 0;
+          myFund.forEach(function (item) {
+            totalCount += item.preValueChange;
+          });
+          totalCount = parseInt(totalCount);
+          console.log('天天基金预估:', totalCount);
+          // 打印到文件
+          logData({
+            myFund,
+            totalCount
+          });
+        });
+      }
+    }).catch(function (err) {
+      console.log(err)
+    }));
+  }, index * 300);
 });
 
 function logData(fileData) {
