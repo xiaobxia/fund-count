@@ -47,6 +47,17 @@ myFund.forEach(function (item, index) {
     }).catch(function (err) {
       console.log(err)
     }));
+    // 新浪
+    request({
+      method: 'get',
+      url: `http://hq.sinajs.cn/list=fu_${item.code}`,
+      encoding: 'utf-8'
+    }).then((body) => {
+      let temp = body.split(',');
+      item.preRateChange2 = temp[temp.length - 2];
+    }).catch(function (err) {
+      console.log(err)
+    });
   }, index * 300);
 });
 
@@ -63,6 +74,8 @@ function count() {
         // 好买
         const change1 = parseFloat(item.preRateChange1.slice(0, item.preRateChange1.indexOf('%')));
         item.preValueChange1 = change1 * item.price / 100;
+        // 新浪
+        item.preValueChange2 = parseFloat(item.preRateChange2) * item.price / 100;
       });
       // 计算天天总收益
       let totalCount = 0;
@@ -81,10 +94,28 @@ function count() {
         }
       });
       totalCount1 = parseInt(totalCount1);
-      let temp = ((totalCount / Math.abs(totalCount)) * Math.pow(totalCount, 2) + (totalCount1 / Math.abs(totalCount1)) * Math.pow(totalCount1, 2)) / 2;
-      const averageCount = parseInt(Math.sqrt(Math.abs(temp)))*(temp / Math.abs(temp));
+      // 计算新浪
+      let totalCount2 = 0;
+      myFund.forEach(function (item) {
+        if (!item.preValueChange2 && item.preValueChange2 !== 0) {
+          totalCount2 += item.preValueChange;
+          console.log(`新浪基金缺少${item.name}的数据,用天天基金数据代替`);
+        } else {
+          totalCount2 += item.preValueChange2;
+        }
+      });
+      totalCount2 = parseInt(totalCount2);
+      let temp = (
+          (totalCount / Math.abs(totalCount)) * Math.pow(totalCount, 2)
+          +
+          (totalCount1 / Math.abs(totalCount1)) * Math.pow(totalCount1, 2)
+          +
+          (totalCount2 / Math.abs(totalCount2)) * Math.pow(totalCount2, 2)
+        ) / 3;
+      const averageCount = parseInt(Math.sqrt(Math.abs(temp))) * (temp / Math.abs(temp));
       console.log('天天基金预估:', totalCount);
       console.log('好买基金预估:', totalCount1);
+      console.log('新浪基金预估', totalCount2);
       console.log('均值:', averageCount);
       console.log(`用时:${Date.now() - startTime}ms`);
       // 打印到文件
