@@ -43,9 +43,11 @@ myFund.forEach(function (item, index) {
           totalCount = parseInt(totalCount);
           console.log('天天基金预估:', totalCount);
           // 打印到文件
+          const now = (new Date()).toLocaleString();
           logData({
-            myFund,
-            totalCount
+            now,
+            totalCount,
+            myFund
           });
         });
       }
