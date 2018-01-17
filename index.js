@@ -120,6 +120,7 @@ function count() {
       console.log(`用时:${Date.now() - startTime}ms`);
       // 打印到文件
       const now = (new Date()).toLocaleString();
+      console.log(now);
       logData({
         now,
         totalCount,
