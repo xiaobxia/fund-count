@@ -11,9 +11,8 @@ const history = [
   }
 ];
 
-let resultRatioList = [];
+let resultRatioMap = {};
 function getRatio(history, ratioList) {
-  let ifError = false;
   history.forEach(function (item, index) {
     let temp =
       ratioList[0] * (item.tiantian / Math.abs(item.tiantian)) * Math.pow(item.tiantian, 2)
@@ -24,10 +23,15 @@ function getRatio(history, ratioList) {
     const averageCount = parseInt(Math.sqrt(Math.abs(temp))) * (temp / Math.abs(temp));
     const offset = averageCount - item.reality;
     const standard = 10;
-    if (-standard < offset && offset < standard && ifError === false) {
-      resultRatioList.push(ratioList);
-    } else {
-      ifError = true;
+    if (-standard < offset && offset < standard) {
+      if (resultRatioMap[ratioList.join(',')]) {
+        resultRatioMap[ratioList.join(',')].times++;
+      } else {
+        resultRatioMap[ratioList.join(',')] = {
+          list: ratioList,
+          times: 1
+        };
+      }
     }
   });
 }
@@ -44,9 +48,17 @@ for (ratioTiantian; ratioTiantian > 0; ratioTiantian -= 1) {
     }
   }
 }
-
+let max = 0;
+let rule = [];
+for (let key in resultRatioMap) {
+  if (resultRatioMap[key].times > max) {
+    max = resultRatioMap[key].times;
+    rule = resultRatioMap[key].list;
+  }
+}
 logData({
-  resultRatioList
+  resultRatioMap,
+  rule
 });
 
 function logData(fileData) {

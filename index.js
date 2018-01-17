@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const myFund = require('./myFund');
 
-const resultRatioList = fs.readJsonSync('./mock/resultRatio.json').resultRatioList;
+const rule = fs.readJsonSync('./mock/resultRatio.json').rule;
 let requestList = [];
 let priceCount = 0;
 let isInCount = false;
@@ -109,18 +109,13 @@ function count() {
       console.log('天天基金预估:', totalCount);
       console.log('好买基金预估:', totalCount1);
       console.log('新浪基金预估', totalCount2);
-      let averageCountAll = 0;
-      resultRatioList.forEach(function (item, index) {
-        let temp =
-          item[0] * (totalCount / Math.abs(totalCount)) * Math.pow(totalCount, 2)
-          +
-          item[1] * (totalCount1 / Math.abs(totalCount1)) * Math.pow(totalCount1, 2)
-          +
-          item[2] * (totalCount2 / Math.abs(totalCount2)) * Math.pow(totalCount2, 2);
-        const averageCount = parseInt(Math.sqrt(Math.abs(temp))) * (temp / Math.abs(temp));
-        averageCountAll += averageCount;
-      });
-      const averageCount = averageCountAll / resultRatioList.length;
+      let temp =
+        rule[0] * (totalCount / Math.abs(totalCount)) * Math.pow(totalCount, 2)
+        +
+        rule[1] * (totalCount1 / Math.abs(totalCount1)) * Math.pow(totalCount1, 2)
+        +
+        rule[2] * (totalCount2 / Math.abs(totalCount2)) * Math.pow(totalCount2, 2);
+      const averageCount = parseInt(Math.sqrt(Math.abs(temp))) * (temp / Math.abs(temp));
       console.log(`均值:${averageCount}`);
       console.log(`用时:${Date.now() - startTime}ms`);
       // 打印到文件
