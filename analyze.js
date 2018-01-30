@@ -5,6 +5,60 @@ const fs = require('fs-extra');
 
 const list = fs.readJsonSync('./mock/fund.json').list;
 
+// 获去连续相同正负的信息
+function getSame(list, index) {
+  let end = index;
+  let start = index;
+  let values = [list[index]];
+  if (list[index]['JZZZL'] > 0 || list[index]['JZZZL'] === 0) {
+    for (let k = index + 1; k < list.length; k++) {
+      if (list[k]['JZZZL'] > 0 || list[k]['JZZZL'] === 0) {
+        values.push(list[k]);
+        end = k;
+      } else {
+        break;
+      }
+    }
+    for (let k = index - 1; k >= 0; k--) {
+      if (list[k]['JZZZL'] > 0 || list[k]['JZZZL'] === 0) {
+        values.unshift(list[k]);
+        start = k;
+      } else {
+        break;
+      }
+    }
+  } else {
+    for (let k = index + 1; k < list.length; k++) {
+      if (list[k]['JZZZL'] < 0 || list[k]['JZZZL'] === 0) {
+        values.push(list[k]);
+        end = k;
+      } else {
+        break;
+      }
+    }
+    for (let k = index - 1; k >= 0; k--) {
+      if (list[k]['JZZZL'] < 0 || list[k]['JZZZL'] === 0) {
+        values.unshift(list[k]);
+        start = k;
+      } else {
+        break;
+      }
+    }
+  }
+  return {
+    start,
+    end,
+    values
+  }
+}
+
+// 删除头尾的脏数据
+function deleteStartAndEnd(list) {
+  let start = getSame(list, 0).end + 1;
+  let end = getSame(list, list.length - 1).start;
+  return list.slice(start, end);
+}
+
 // 计算涨跌的个数各是多少
 function getUpAndDownCount(list) {
   let up = 0;
@@ -95,10 +149,10 @@ function getMaxUpAndDown(list) {
 // 连涨和连跌天数
 function getMaxUpIntervalAndMaxDownInterval(list) {
   let newList = [];
+  // 翻转
   for (let i = list.length - 1; i >= 0; i--) {
     newList.push(list[i])
   }
-
   let maxUpInterval = 0;
   let maxUpTemp = 0;
   let maxDownInterval = 0;
@@ -155,6 +209,7 @@ function getMaxUpIntervalAndMaxDownInterval(list) {
   }
 
   return {
+    days: newList.length,
     // 最多连涨天数
     maxUpInterval,
     // 最多连跌天数
@@ -180,11 +235,11 @@ function getRecentlyInfo(list, days) {
   });
   let type = '';
   let dayCount = 1;
+  let interval = getMaxUpIntervalAndMaxDownInterval(data);
   let intervalInfo = null;
   if (data[0]['JZZZL'] < 0) {
-    type = '跌';
-    //TODO 是否换成data
-    intervalInfo = getMaxUpIntervalAndMaxDownInterval(data).downInterval;
+    type = '-';
+    intervalInfo = interval.downInterval;
     for (let i = 1; i < data.length; i++) {
       if (data[i]['JZZZL'] < 0 || data[i]['JZZZL'] === 0) {
         dayCount++;
@@ -193,9 +248,8 @@ function getRecentlyInfo(list, days) {
       }
     }
   } else {
-    type = '涨';
-    //TODO 是否换成data
-    intervalInfo = getMaxUpIntervalAndMaxDownInterval(data).upInterval;
+    type = '+';
+    intervalInfo = interval.upInterval;
     for (let i = 1; i < data.length; i++) {
       if (data[i]['JZZZL'] > 0 || data[i]['JZZZL'] === 0) {
         dayCount++;
@@ -216,10 +270,17 @@ function getRecentlyInfo(list, days) {
   }
 
   return {
+    range: days,
     upInRange,
     downInRange,
     total,
-    info: `已经连续${type}${dayCount}天, 继续${type}的概率是${greaterTimes / totalTimes}`
+    // 昨天是涨是跌
+    type,
+    // 已经延续多久
+    dayCount,
+    // 延续的概率
+    probability: greaterTimes / totalTimes,
+    interval
   }
 }
 
@@ -227,4 +288,4 @@ console.log(getUpAndDownCount(list))
 console.log(getUpAndDownDistribution(list))
 console.log(getMaxUpAndDown(list))
 console.log(getMaxUpIntervalAndMaxDownInterval(list))
-console.log(getRecentlyInfo(list))
+console.log(getRecentlyInfo(list,30))
