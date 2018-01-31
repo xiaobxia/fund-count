@@ -93,20 +93,40 @@ function getUpAndDownDistribution(list) {
     for (let k = 0; k < 20; k++) {
       const start = k * step;
       const end = (k + 1) * step;
-      if (start < ratio && ratio < end) {
+      // 正的, 不包括0
+      if (start < ratio && (ratio <= end)) {
         if (map[`${start}~${end}`]) {
-          map[`${start}~${end}`]++;
+          map[`${start}~${end}`].times++;
+          if (list[i + 1] && list[i + 1]['JZZZL'] > 0) {
+            map[`${start}~${end}`].continues++;
+          }
           break;
         } else {
-          map[`${start}~${end}`] = 1;
+          map[`${start}~${end}`] = {
+            times: 1,
+            continues: 0
+          };
+          if (list[i + 1] && list[i + 1]['JZZZL'] > 0) {
+            map[`${start}~${end}`].continues++;
+          }
           break;
         }
-      } else if (-end < ratio && ratio < -start) {
+        // 负的，包括零
+      } else if (-end < ratio && ratio <= -start) {
         if (map[`-${end}~-${start}`]) {
-          map[`-${end}~-${start}`]++;
+          map[`-${end}~-${start}`].times++;
+          if (list[i + 1] && list[i + 1]['JZZZL'] < 0) {
+            map[`-${end}~-${start}`].continues++;
+          }
           break;
         } else {
-          map[`-${end}~-${start}`] = 1;
+          map[`-${end}~-${start}`] = {
+            times: 1,
+            continues: 0
+          };
+          if (list[i + 1] && list[i + 1]['JZZZL'] < 0) {
+            map[`-${end}~-${start}`].continues++;
+          }
           break;
         }
       }
@@ -116,7 +136,8 @@ function getUpAndDownDistribution(list) {
   for (let k in map) {
     list1.push({
       range: k,
-      times: map[k]
+      times: map[k].times,
+      continues: map[k].continues
     });
   }
   list1.sort(function (a, b) {
@@ -288,4 +309,4 @@ console.log(getUpAndDownCount(list))
 console.log(getUpAndDownDistribution(list))
 console.log(getMaxUpAndDown(list))
 console.log(getMaxUpIntervalAndMaxDownInterval(list))
-console.log(getRecentlyInfo(list,30))
+console.log(getRecentlyInfo(list, 30))
