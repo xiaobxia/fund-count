@@ -32,6 +32,11 @@ request({
     return cheerio.load(body);
   }
 }).then(($) => {
+  const tbody = $('#nTab2_Con1 tbody');
+  const texts = $('#nTab2_Con1 textarea');
+  texts.each(function () {
+    tbody.append($(this).text());
+  });
   // 预估涨跌幅
   const items = $('#nTab2_Con1 tbody tr');
   let funds = [];
@@ -42,22 +47,6 @@ request({
       code: cols.eq(2).text(),
       valuation: parseFloat(cols.eq(4).text())
     })
-  });
-
-  const items2 = $('#nTab2_Con1 textarea');
-  items2.each(function () {
-    const $2 = cheerio.load($(this).text().trim());
-    console.log($(this).text().trim())
-    const items3 = $2('tr');
-    // 是可购的
-    items3.each(function () {
-      const cols = $(this).find('td');
-      // 是可购的
-      funds.push({
-        code: cols.eq(2).text(),
-        valuation: parseFloat(cols.eq(4).text())
-      })
-    });
   });
   console.log(funds.length);
   logData({
