@@ -30,7 +30,6 @@ function getUpDown(code, days) {
       Referer: `http://fund.eastmoney.com/f10/jjjz_${code}.html`
     }
   }).then((body) => {
-    console.log(body)
     const jsonData = body.substring(body.indexOf('(') + 1, body.indexOf(')'));
     const list = JSON.parse(jsonData).Data.LSJZList;
     let list2 = [];
@@ -43,17 +42,6 @@ function getUpDown(code, days) {
         DWJZ: parseFloat(item.DWJZ || 0),
       })
     });
-    // 剔除早期的几个无效数据
-    if (list2[list2.length - 1]['JZZZL'] === 0) {
-      let i = 0;
-      for (let k = list2.length - 2; k > 0; k--) {
-        if (list2[k]['JZZZL'] !== 0) {
-          i = k;
-          break;
-        }
-      }
-      list2 = list2.slice(0, i);
-    }
 
     logData({
       list: list2
@@ -66,7 +54,7 @@ function getUpDown(code, days) {
 
 
 function logData(fileData) {
-  const fileName = './mock/funds.json';
+  const fileName = './mock/fund.json';
   fs.ensureFile(fileName).then(() => {
     fs.writeJson(fileName, fileData, {spaces: 2})
   });
