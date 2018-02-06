@@ -49,16 +49,16 @@ request({
     })
   });
   console.log(funds.length);
-  logData({
-    funds
-  })
+  // logData({
+  //   funds
+  // })
 }).catch(function (err) {
   console.log(err)
 });
-
-function logData(fileData) {
-  const fileName = './mock/funds.json';
-  fs.ensureFile(fileName).then(() => {
-    fs.writeJson(fileName, fileData, {spaces: 2})
-  });
-}
+//
+// function logData(fileData) {
+//   const fileName = './mock/funds.json';
+//   fs.ensureFile(fileName).then(() => {
+//     fs.writeJson(fileName, fileData, {spaces: 2})
+//   });
+// }
