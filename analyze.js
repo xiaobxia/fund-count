@@ -86,59 +86,77 @@ function getUpAndDownCount(list) {
 
 // 获取涨跌值分布
 function getUpAndDownDistribution(list) {
-  const step = 0.5;
+  const step = 0.25;
   let map = {};
   for (let i = 0; i < list.length; i++) {
     let ratio = list[i]['JZZZL'];
-    for (let k = 0; k < 20; k++) {
+    for (let k = 0; k < 40; k++) {
       const start = k * step;
       const end = (k + 1) * step;
       // 正的, 不包括0
       if (start < ratio && (ratio <= end)) {
-        if (map[`${start}~${end}`]) {
-          map[`${start}~${end}`].times++;
-          if (list[i + 1] && list[i + 1]['JZZZL'] > 0) {
-            map[`${start}~${end}`].continues++;
-          }
-          break;
+        const key = `${start}~${end}`;
+        // 在某一区间出现次数
+        if (map[key]) {
+          // 记录
+          map[key].times++;
+          map[key].values.push(ratio);
         } else {
-          map[`${start}~${end}`] = {
+          map[key] = {
             times: 1,
-            continues: 0
+            values: [ratio],
+            continues: {
+              times: 0,
+              values: []
+            }
           };
-          if (list[i + 1] && list[i + 1]['JZZZL'] > 0) {
-            map[`${start}~${end}`].continues++;
-          }
-          break;
         }
+        if (list[i + 1] && list[i + 1]['JZZZL'] > 0) {
+          if (map[key].continues) {
+            map[key].continues.times++;
+            map[key].continues.values.push(list[i + 1]['JZZZL']);
+          }
+        }
+        break;
         // 负的，包括零
       } else if (-end < ratio && ratio <= -start) {
-        if (map[`-${end}~-${start}`]) {
-          map[`-${end}~-${start}`].times++;
-          if (list[i + 1] && list[i + 1]['JZZZL'] < 0) {
-            map[`-${end}~-${start}`].continues++;
-          }
-          break;
+        const key = `-${end}~-${start}`;
+        if (map[key]) {
+          map[key].times++;
+          map[key].values.push(ratio);
         } else {
-          map[`-${end}~-${start}`] = {
+          map[key] = {
             times: 1,
-            continues: 0
+            values: [ratio],
+            continues: {
+              times: 0,
+              values: []
+            }
           };
-          if (list[i + 1] && list[i + 1]['JZZZL'] < 0) {
-            map[`-${end}~-${start}`].continues++;
-          }
-          break;
         }
+        if (list[i + 1] && list[i + 1]['JZZZL'] < 0) {
+          if (map[key].continues) {
+            map[key].continues.times++;
+            map[key].continues.values.push(list[i + 1]['JZZZL']);
+          }
+        }
+        break;
       }
     }
   }
   let list1 = [];
+  let len = 0;
   for (let k in map) {
+    len += map[k].times;
     list1.push({
       range: k,
+      values: map[k].values,
       times: map[k].times,
       continues: map[k].continues
     });
+  }
+  if (len !== list.length) {
+    console.error('数据丢失')
   }
   list1.sort(function (a, b) {
     return parseFloat(a.range.split('~')[0]) - parseFloat(b.range.split('~')[0]);
@@ -146,7 +164,7 @@ function getUpAndDownDistribution(list) {
   return {
     list: list1,
     map
-  }
+  };
 }
 
 
@@ -189,18 +207,23 @@ function getMaxUpIntervalAndMaxDownInterval(list) {
       // 包括0
       if (newList[i]['JZZZL'] > 0 || newList[i]['JZZZL'] === 0) {
         maxUpTemp = 1;
+        let sum = newList[i]['JZZZL'];
         for (let j = i + 1; j < newList.length; j++) {
           index = j;
           if (newList[j]['JZZZL'] > 0 || newList[j]['JZZZL'] === 0) {
+            sum += newList[j]['JZZZL'];
             maxUpTemp++;
           } else {
             break;
           }
         }
         if (upInterval[maxUpTemp]) {
-          upInterval[maxUpTemp]++;
+          upInterval[maxUpTemp].times++;
+          upInterval[maxUpTemp].rates.push(sum);
         } else {
-          upInterval[maxUpTemp] = 1;
+          upInterval[maxUpTemp] = {};
+          upInterval[maxUpTemp].times = 1;
+          upInterval[maxUpTemp].rates = [sum];
         }
         if (maxUpInterval < maxUpTemp) {
           maxUpInterval = maxUpTemp
@@ -209,18 +232,23 @@ function getMaxUpIntervalAndMaxDownInterval(list) {
 
       if (newList[i]['JZZZL'] < 0 || newList[i]['JZZZL'] === 0) {
         maxDownTemp = 1;
+        let sum = newList[i]['JZZZL'];
         for (let j = i + 1; j < newList.length; j++) {
           index = j;
           if (newList[j]['JZZZL'] < 0 || newList[j]['JZZZL'] === 0) {
+            sum += newList[j]['JZZZL'];
             maxDownTemp++;
           } else {
             break;
           }
         }
         if (downInterval[maxDownTemp]) {
-          downInterval[maxDownTemp]++;
+          downInterval[maxDownTemp].times++;
+          downInterval[maxDownTemp].rates.push(sum);
         } else {
-          downInterval[maxDownTemp] = 1;
+          downInterval[maxDownTemp] = {};
+          downInterval[maxDownTemp].times = 1;
+          downInterval[maxDownTemp].rates = [sum];
         }
         if (maxDownInterval < maxDownTemp) {
           maxDownInterval = maxDownTemp
@@ -305,8 +333,45 @@ function getRecentlyInfo(list, days) {
   }
 }
 
-console.log(getUpAndDownCount(list))
-console.log(getUpAndDownDistribution(list))
-console.log(getMaxUpAndDown(list))
-console.log(getMaxUpIntervalAndMaxDownInterval(list))
-console.log(getRecentlyInfo(list, 30))
+// function getSupportLine(list) {
+//   let listFake = [];
+//   list.forEach(function (item) {
+//     listFake.push(item['DWJZ']);
+//   });
+//   //左小右打
+//   listFake.sort(function (a, b) {
+//     return a - b;
+//   });
+// }
+
+function getNetValueDistribution(list) {
+  let listFake = [];
+  let listMap = {};
+  list.forEach(function (item) {
+    if (listMap[item['DWJZ']]) {
+      listMap[item['DWJZ']]++;
+    } else {
+      listMap[item['DWJZ']] = 1;
+    }
+  });
+  for (let key in listMap) {
+    listFake.push({
+      netValue: key,
+      times: listMap[key]
+    });
+  }
+  //左小右打
+  listFake.sort(function (a, b) {
+    return a.netValue - b.netValue;
+  });
+  console.log(listFake[0])
+  console.log(listFake[listFake.length - 1])
+};
+
+getNetValueDistribution(list);
+
+// console.log(getUpAndDownCount(list))
+// console.log(getUpAndDownDistribution(list))
+// console.log(getMaxUpAndDown(list))
+// console.log(getMaxUpIntervalAndMaxDownInterval(list))
+// console.log(getRecentlyInfo(list, 30))
