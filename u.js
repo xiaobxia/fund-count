@@ -21,7 +21,7 @@ rule.dayOfWeek = [new schedule.Range(1, 5)];
 // 10-12,13-16
 rule.hour = [10, 11, 13, 14, 15];
 let minute = [];
-for (let k = 0; k < 60; k += 2) {
+for (let k = 0; k < 60; k += 3) {
   minute.push(k);
 }
 rule.minute = minute;

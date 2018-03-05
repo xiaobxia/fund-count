@@ -382,7 +382,9 @@ const all = [
 
 let listU5 = [];
 all.forEach(function (item) {
+  if (item.rate < 0.5) {
     listU5.push(item.code);
+  }
 });
 
 logData({
