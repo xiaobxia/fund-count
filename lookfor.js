@@ -54,10 +54,10 @@ request({
       if (item && item.indexOf('%') !== -1) {
         const rate = parseFloat(item.split('%')[0]);
         if (rate < 1) {
-          console.log({
-            code: fund.code,
-            rate: rate
-          },);
+          console.log(JSON.stringify({
+              code: fund.code,
+              rate: rate
+            }) + ',');
           resultList.push({
             code: fund.code,
             rate: rate
@@ -66,7 +66,7 @@ request({
       }
     }))
   });
-  Promise.all(opList).then(()=>{
+  Promise.all(opList).then(() => {
     logData({
       list: resultList
     });
