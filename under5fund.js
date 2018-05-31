@@ -4,14 +4,10 @@
 const request = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs-extra');
-const Iconv = require('iconv-lite');
 
-function logData(fileData) {
-  const fileName = './mock/lookfor.json';
-  fs.ensureFile(fileName).then(() => {
-    fs.writeJson(fileName, fileData, {spaces: 2})
-  });
-}
+/**
+ * 找出低于0.5费率的基金
+ */
 
 const all = [
   {code: '001133', rate: 0.5},
@@ -378,14 +374,22 @@ const all = [
   {code: '501002', rate: 0.5},
   {code: '161629', rate: 0.5},
   {code: '519180', rate: 0.5},
-  {code: '161721', rate: 0.5}];
+  {code: '161721', rate: 0.5}
+];
 
 let listU5 = [];
 all.forEach(function (item) {
-  if (item.rate < 0.5) {
+  if (item.rate <= 0.5) {
     listU5.push(item.code);
   }
 });
+
+function logData(fileData) {
+  const fileName = './mock/under5fund.json';
+  fs.ensureFile(fileName).then(() => {
+    fs.writeJson(fileName, fileData, {spaces: 2})
+  });
+}
 
 logData({
   fund: listU5

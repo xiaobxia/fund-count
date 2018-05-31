@@ -6,13 +6,16 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
+/**
+ * 得到基金
+ */
+
 function logData(fileData) {
-  const fileName = './mock/lookfor.json';
+  const fileName = './mock/fund.json';
   fs.ensureFile(fileName).then(() => {
     fs.writeJson(fileName, fileData, {spaces: 2})
   });
 }
-
 
 request({
   method: 'get',
@@ -37,39 +40,8 @@ request({
       })
     }
   });
-
-  let resultList = [];
-  let opList = [];
-
-  funds.forEach(function (fund) {
-    opList.push(request({
-      method: 'get',
-      url: `http://fund.eastmoney.com/f10/jjfl_${fund.code}.html`,
-      encoding: 'utf-8',
-      transform: function (body) {
-        return cheerio.load(body);
-      }
-    }).then(($) => {
-      const item = $('.txt_in .box').eq(6).find('table tbody tr').eq(0).find('td').eq(2).text();
-      if (item && item.indexOf('%') !== -1) {
-        const rate = parseFloat(item.split('%')[0]);
-        if (rate < 1) {
-          console.log(JSON.stringify({
-              code: fund.code,
-              rate: rate
-            }) + ',');
-          resultList.push({
-            code: fund.code,
-            rate: rate
-          });
-        }
-      }
-    }))
-  });
-  Promise.all(opList).then(() => {
-    logData({
-      list: resultList
-    });
+  logData({
+    list: funds
   });
 }).catch(function (err) {
   console.log(err)
