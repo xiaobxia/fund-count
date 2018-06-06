@@ -670,10 +670,8 @@ const all = [
 
 let listU5 = [];
 all.forEach(function (item) {
-  if (item.rate <= 0.2) {
-    listU5.push({
-      code: item.code
-    });
+  if (item.rate <= 0.25) {
+    listU5.push(item.code);
   }
 });
 
