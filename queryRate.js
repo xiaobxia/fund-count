@@ -32,7 +32,7 @@ let resultList = [];
         return cheerio.load(body);
       }
     }).then(($) => {
-      const item = $('.txt_in .box').eq(6).find('table tbody tr').eq(0).find('td').eq(2).text();
+      const item = $('.txt_in .box').eq(6).find('table tbody tr').eq(1).find('td').eq(2).text();
       if (item && item.indexOf('%') !== -1) {
         const rate = parseFloat(item.split('%')[0]);
         // 费率小于1的
@@ -53,3 +53,19 @@ let resultList = [];
 logData({
   list: resultList
 });
+
+// request({
+//   method: 'get',
+//   url: `http://fund.eastmoney.com/f10/jjfl_160222.html`,
+//   encoding: 'utf-8',
+//   transform: function (body) {
+//     return cheerio.load(body);
+//   }
+// }).then(($) => {
+//   const item = $('.txt_in .box').eq(6).find('table tbody tr').eq(1).find('td').eq(2).text();
+//   if (item && item.indexOf('%') !== -1) {
+//     const rate = parseFloat(item.split('%')[0]);
+//     // 费率小于1的
+//     console.log(rate)
+//   }
+// })
