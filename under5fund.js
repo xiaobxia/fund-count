@@ -670,7 +670,7 @@ const all = [
 
 let listU5 = [];
 all.forEach(function (item) {
-  if (item.rate <= 0.5) {
+  if (item.rate <= 0.2) {
     listU5.push({
       code: item.code
     });
@@ -678,7 +678,7 @@ all.forEach(function (item) {
 });
 
 function logData(fileData) {
-  const fileName = './mock/under5fund.json';
+  const fileName = './mock/under2fund.json';
   fs.ensureFile(fileName).then(() => {
     fs.writeJson(fileName, fileData, {spaces: 2})
   });
