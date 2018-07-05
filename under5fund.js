@@ -670,20 +670,22 @@ const all = [
 
 let listU5 = [];
 all.forEach(function (item) {
-  if (item.rate <= 0.25) {
-    listU5.push(item.code);
+  if (item.rate > 0.5) {
+    listU5.push({
+      code: item.code
+    });
   }
 });
 
 function logData(fileData) {
-  const fileName = './mock/under2fund.json';
+  const fileName = './mock/under1fund.json';
   fs.ensureFile(fileName).then(() => {
     fs.writeJson(fileName, fileData, {spaces: 2})
   });
 }
-
+console.log(listU5.length)
 logData({
-  funds: listU5
+  funds: listU5.slice(240, 278)
 });
 
 
