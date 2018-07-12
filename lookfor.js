@@ -32,12 +32,15 @@ request({
     const cols = $(this).find('td');
     // 是可购的
     if (cols.eq(-1).hasClass('bi') && cols.eq(4).text() !== '---' && cols.eq(9).text() !== '---') {
-      funds.push({
-        code: cols.eq(2).text(),
-        name: cols.eq(3).find('a').eq(0).text(),
-        valuation: parseFloat(cols.eq(4).text()),
-        net_value: parseFloat(cols.eq(9).text())
-      })
+      const name = cols.eq(3).find('a').eq(0).text();
+      if (name.indexOf('金鹰') === !1) {
+        funds.push({
+          code: cols.eq(2).text(),
+          name: cols.eq(3).find('a').eq(0).text(),
+          valuation: parseFloat(cols.eq(4).text()),
+          net_value: parseFloat(cols.eq(9).text())
+        })
+      }
     }
   });
   logData({
