@@ -5,8 +5,9 @@ const request = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs-extra');
 
+const rate = 0.25;
 /**
- * 找出低于0.5费率的基金
+ * 找出低费率的基金
  */
 
 const all = [
@@ -671,7 +672,7 @@ const all = [
 
 let listU5 = [];
 all.forEach(function (item) {
-  if (item.rate < 0.5) {
+  if (item.rate <= rate) {
     listU5.push(
       item.code
     );
@@ -679,12 +680,12 @@ all.forEach(function (item) {
 });
 
 function logData(fileData) {
-  const fileName = './mock/under5fund.json';
+  const fileName = './mock/lowerFund.json';
   fs.ensureFile(fileName).then(() => {
     fs.writeJson(fileName, fileData, {spaces: 2})
   });
 }
-console.log(listU5.length)
+console.log(listU5.length);
 logData({
   funds: listU5
 });

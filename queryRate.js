@@ -6,9 +6,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
-/**
- * 找出费率小于1的基金
- */
+const baseRate = 0.5;
 
 function logData(fileData) {
   const fileName = './mock/lowFund.json';
@@ -35,8 +33,7 @@ let resultList = [];
       const item = $('.txt_in .box').eq(6).find('table tbody tr').eq(1).find('td').eq(2).text();
       if (item && item.indexOf('%') !== -1) {
         const rate = parseFloat(item.split('%')[0]);
-        // 费率小于1的
-        if (rate < 1) {
+        if (rate <= baseRate) {
           console.log(JSON.stringify({
               code: fund.code,
               rate: rate
