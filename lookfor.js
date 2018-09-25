@@ -37,7 +37,7 @@ request({
     if (cols.eq(-1).hasClass('bi') && cols.eq(4).text() !== '---' && cols.eq(9).text() !== '---') {
       const name = cols.eq(3).find('a').eq(0).text();
       //不是金鹰的
-      if (name.indexOf('金鹰') === !1) {
+      if (name.indexOf('金鹰') === -1) {
         funds.push({
           code: cols.eq(2).text(),
           name: cols.eq(3).find('a').eq(0).text(),
