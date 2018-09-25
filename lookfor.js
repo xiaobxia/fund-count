@@ -17,6 +17,9 @@ function logData(fileData) {
   });
 }
 
+/**
+ * 需要在10点以后才找得出数据
+ */
 request({
   method: 'get',
   url: `http://fund.eastmoney.com/GP_fundguzhi3.html`,
@@ -33,6 +36,7 @@ request({
     // 是可购的
     if (cols.eq(-1).hasClass('bi') && cols.eq(4).text() !== '---' && cols.eq(9).text() !== '---') {
       const name = cols.eq(3).find('a').eq(0).text();
+      //不是金鹰的
       if (name.indexOf('金鹰') === !1) {
         funds.push({
           code: cols.eq(2).text(),
