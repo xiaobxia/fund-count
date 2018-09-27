@@ -19,6 +19,9 @@ const funds = fs.readJsonSync('./mock/fund.json').list;
 
 let resultList = [];
 
+/**
+ * 没查完提前结束的话，可以分段查
+ */
 (async function () {
   for (let i = 0; i < funds.length; i++) {
     const fund = funds[i];
