@@ -15,7 +15,9 @@ function logData(fileData) {
   });
 }
 
-const funds = fs.readJsonSync('./mock/fund.json').list;
+let funds = fs.readJsonSync('./mock/fund.json').list;
+// 800左右
+funds = funds.slice(600)
 
 let resultList = [];
 
