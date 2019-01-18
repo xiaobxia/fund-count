@@ -17,7 +17,7 @@ function logData(fileData) {
 
 let funds = fs.readJsonSync('./mock/fund.json').list;
 // 800左右
-funds = funds.slice(600)
+funds = funds.slice(500, 600)
 
 let resultList = [];
 

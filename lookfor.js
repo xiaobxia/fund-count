@@ -22,29 +22,25 @@ function logData(fileData) {
  */
 request({
   method: 'get',
-  url: `http://fund.eastmoney.com/GP_fundguzhi3.html`,
-  encoding: null,
-  transform: function (body) {
-    return cheerio.load(Iconv.decode(body, 'gb2312').toString());
+  url: `http://api.fund.eastmoney.com/FundGuZhi/GetFundGZList?type=2&sort=3&orderType=desc&canbuy=1&pageIndex=1&pageSize=7000&callback=jQuery18308875682296234204_1545794364195&_=1545794408778`,
+  encoding: 'utf-8',
+  headers: {
+    Referer: 'http://fund.eastmoney.com/fundguzhi.html'
   }
-}).then(($) => {
-  // 预估涨跌幅
-  const items = $('#oTable tbody tr');
+}).then((body) => {
+  //console.log(body)
+  let str = body.slice(body.indexOf('(') + 1, body.lastIndexOf(')'))
+  const data = JSON.parse(str).Data
   let funds = [];
-  items.each(function () {
-    const cols = $(this).find('td');
-    // 是可购的
-    if (cols.eq(-1).hasClass('bi') && cols.eq(4).text() !== '---' && cols.eq(9).text() !== '---') {
-      const name = cols.eq(3).find('a').eq(0).text();
-      //不是金鹰的
-      if (name.indexOf('金鹰') === -1) {
-        funds.push({
-          code: cols.eq(2).text(),
-          name: cols.eq(3).find('a').eq(0).text(),
-          valuation: parseFloat(cols.eq(4).text()),
-          net_value: parseFloat(cols.eq(9).text())
-        })
-      }
+  data.list.map(function (item) {
+    if(item.jjjc.indexOf('金鹰') === -1 && item.gsz !== '---') {
+      funds.push({
+        code: item.bzdm,
+        name: item.jjjc,
+        valuation: parseFloat(item.gsz),
+        net_value: parseFloat(item.dwjz),
+        sell: item.isbuy === '1'
+      });
     }
   });
   logData({
