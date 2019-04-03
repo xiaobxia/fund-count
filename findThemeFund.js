@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
-const keyWord = encodeURI('传媒')
+const keyWord = encodeURI('信息')
 
 /**
  * 得到基金
@@ -56,18 +56,24 @@ function queryBuySellRate(code, name) {
     let buyRateOne = 0
     let sellRateOne = 0
     let sellRateTwo = 0
-    const sellRateOneText = $('.txt_in .box').eq(6).find('table tbody tr').eq(0).find('td').eq(2).text();
-    if (sellRateOneText && sellRateOneText.indexOf('%') !== -1) {
-      sellRateOne = parseFloat(sellRateOneText.split('%')[0]);
-    }
-    const sellRateTwoText = $('.txt_in .box').eq(6).find('table tbody tr').eq(1).find('td').eq(2).text();
-    if (sellRateTwoText && sellRateTwoText.indexOf('%') !== -1) {
-      sellRateTwo = parseFloat(sellRateTwoText.split('%')[0]);
-    }
-    const buyRateOneText = $('.txt_in .box').eq(5).find('table tbody tr').eq(0).find('td').eq(2).find('strike').text();
-    if (buyRateOneText && buyRateOneText.indexOf('%') !== -1) {
-      buyRateOne = parseFloat(buyRateOneText.split('%')[0]) /10;
-    }
+    $('.txt_in .box').each(function () {
+      const tableName = $(this).find('h4 .left').text()
+      if (tableName.indexOf('赎回费率') !== -1) {
+        const sellRateOneText = $(this).find('table tbody tr').eq(0).find('td').eq(2).text();
+        if (sellRateOneText && sellRateOneText.indexOf('%') !== -1) {
+          sellRateOne = parseFloat(sellRateOneText.split('%')[0]);
+        }
+        const sellRateTwoText = $(this).find('table tbody tr').eq(1).find('td').eq(2).text();
+        if (sellRateTwoText && sellRateTwoText.indexOf('%') !== -1) {
+          sellRateTwo = parseFloat(sellRateTwoText.split('%')[0]);
+        }
+      } else if (tableName.indexOf('申购费率') !== -1) {
+        const buyRateOneText = $(this).find('table tbody tr').eq(0).find('td').eq(2).find('strike').text();
+        if (buyRateOneText && buyRateOneText.indexOf('%') !== -1) {
+          buyRateOne = parseFloat(buyRateOneText.split('%')[0]) /10;
+        }
+      }
+    })
     return list.push({
       code,
       name,
