@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
-const keyWord = encodeURI('信息')
+const keyWord = encodeURI('酒')
 
 /**
  * 得到基金
@@ -30,14 +30,23 @@ request({
   const data = JSON.parse(str).Datas
   let doList = []
   data.map((item)=>{
-    doList.push(queryBuySellRate(item.CODE, item.NAME))
+    if (item.NAME.indexOf('B') === -1) {
+      doList.push(queryBuySellRate(item.CODE, item.NAME))
+    }
   })
   Promise.all(doList).then(()=>{
     list.sort((a, b)=>{
       return a.cost - b.cost
     })
+    let newList = []
+    for (let i=0;i<list.length;i++) {
+      let item = list[i]
+      if (item.sellRateOne === 1.5) {
+        newList.push(item)
+      }
+    }
     logData({
-      list
+      list: newList
     })
   })
 }).catch(function (err) {
