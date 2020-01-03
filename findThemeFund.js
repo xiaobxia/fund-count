@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
-const keyWord = encodeURI('酒')
+const keyWord = encodeURI('上证50')
 
 /**
  * 得到基金
@@ -35,6 +35,12 @@ request({
     }
   })
   Promise.all(doList).then(()=>{
+    let op = []
+    list.forEach((item)=>{
+      op.push(queryChange(item))
+    })
+    return Promise.all(op)
+  }).then(()=>{
     list.sort((a, b)=>{
       return a.cost - b.cost
     })
@@ -91,5 +97,27 @@ function queryBuySellRate(code, name) {
       sellRateTwo,
       cost: buyRateOne + sellRateTwo
     })
+  })
+}
+
+function queryChange(item) {
+  console.log(1)
+  return request({
+    method: 'get',
+    url: `http://fund.eastmoney.com/f10/FundArchivesDatas.aspx?type=jdzf&code=${item.code}&rt=0.1609120935955488`,
+    encoding: 'utf-8',
+    headers: {
+      Referer: `http://fund.eastmoney.com/f10/jdzf_${item.code}.html`
+    },
+    transform: function (body) {
+      console.log(2)
+      let str = body.slice(body.indexOf('"') + 1, body.lastIndexOf('"'))
+      return cheerio.load(str);
+    }
+  }).then(($) => {
+    item.month1 = $('.jdzfnew').find('ul').eq(3).find('li').eq(1).text()
+    item.month3 = $('.jdzfnew').find('ul').eq(4).find('li').eq(1).text()
+    item.month6 = $('.jdzfnew').find('ul').eq(5).find('li').eq(1).text()
+    item.month12 = $('.jdzfnew').find('ul').eq(6).find('li').eq(1).text()
   })
 }
