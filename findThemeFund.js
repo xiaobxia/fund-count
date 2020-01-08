@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs-extra');
 const Iconv = require('iconv-lite');
 
-const keyWord = encodeURI('上证50')
+const keyWord = encodeURI('传媒')
 
 /**
  * 得到基金
